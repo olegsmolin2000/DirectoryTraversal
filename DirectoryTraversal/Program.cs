@@ -8,6 +8,7 @@
     Console.WriteLine(parameters.OutputPath);
     Console.WriteLine(parameters.IsOnlyFileOutput);
     Console.WriteLine(parameters.HumanReadable);
+    
 }
 catch (Exception ex)
 {

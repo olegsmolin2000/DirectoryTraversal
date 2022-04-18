@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DirectoryTraversal
+﻿namespace DirectoryTraversal
 {
     /// <summary>
     /// Типы элементов данных
@@ -42,7 +36,7 @@ namespace DirectoryTraversal
         public int BytesCount { get; private set; }
 
         /// <summary>
-        /// 
+        /// Создаёт экземпляр объекта элемента данных
         /// </summary>
         /// <param name="name">Название элемента</param>
         /// <param name="type">Тип элемента</param>
@@ -58,9 +52,17 @@ namespace DirectoryTraversal
         /// Увеличение количества занимаемого места
         /// </summary>
         /// <param name="additionalSize">Добавляемый размер (в байтах)</param>
+        /// <exception cref="ArgumentException">Добавление отрицательного количества байт</exception>        
         public void IncreaseBytes(int additionalSize)
         {
-
+            if (additionalSize >= 0)
+            {
+                BytesCount += additionalSize;
+            }
+            else
+            {
+                throw new ArgumentException("Добавление отрицательного размера в классе DataElement!");
+            }
         }
     }
 }
