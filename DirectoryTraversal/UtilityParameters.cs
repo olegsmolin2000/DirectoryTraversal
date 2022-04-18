@@ -13,24 +13,30 @@
 
         /// <summary>
         /// Путь к папке для обхода 
-        /// (-p или --path. По-умолчанию текущая папка вызова программы)
+        /// (-p или --path. По умолчанию - текущая папка вызова программы)
         /// </summary>
         public string DirectoryPath { get; private set; }
 
         /// <summary>
-        /// Путь к тестовому файлу, куда записать результаты выполнения расчёта 
-        /// (-o или --output. По-умолчанию файл sizes-YYYY-MM-DD.txt в текущей папке вызова программы)
+        /// Расположение папки, в которую будет записан результирующий файл
+        /// (-o или --output. По умолчанию - текущая папка вызова программы)
         /// </summary>
-        public string OutputPath { get; private set; }
+        public string OutputDirectory { get; set; }
+
+        /// <summary>
+        /// Название результирующейго файла
+        /// (-o или --output. По умолчанию - файл sizes-YYYY-MM-DD.txt)
+        /// </summary>
+        public string OutputFileName { get; set; }
 
         /// <summary>
         /// Признак формирования размеров файлов в человекочитаемой форме
         /// (-h или --humanread. Если <see langword="true"/>, то размер показывается в читаемой для человека форме)
         /// </summary>
-        public bool HumanReadable { get; private set; }
+        public bool ReduceBytes { get; private set; }
 
         /// <summary>
-        /// Заполнение параметров значениями по умолчанию. 
+        /// Создание экземпляра параметров и заполнение его значениями по умолчанию. 
         /// Путь - текущая папка. 
         /// Выходной файл - "текущая папка/sizes-YYYY-MM-DD.txt".
         /// </summary>
@@ -38,8 +44,9 @@
         {
             IsOnlyFileOutput = false;
             DirectoryPath = Directory.GetCurrentDirectory();
-            OutputPath = $"{DirectoryPath}\\sizes-{DateTime.Now.ToString("yyyy-MM-dd")}.txt";
-            HumanReadable = false;
+            OutputDirectory = DirectoryPath;
+            OutputFileName = $"sizes-{DateTime.Now.ToString("yyyy-MM-dd")}.txt";
+            ReduceBytes = false;
         }
 
         /// <summary>
@@ -63,7 +70,7 @@
                     case "-h":
                     case "--humanread":
                         {
-                            HumanReadable = true;
+                            ReduceBytes = true;
 
                             break;
                         }
@@ -77,7 +84,6 @@
                                 if (Directory.Exists(directoryPath))
                                 {
                                     DirectoryPath = directoryPath;
-
                                     i++;
                                 }
                                 else
@@ -97,18 +103,26 @@
                         {
                             if (i + 1 < args.Length)
                             {
-                                string outputPath = args[i + 1];
+                                var outputFile = args[i + 1];
 
-                                if (outputPath.EndsWith(".txt") && Directory.Exists(Path.GetDirectoryName(outputPath)))
+                                var outputDirectory = Path.GetDirectoryName(outputFile);
+                                var outputFileName = Path.GetFileName(outputFile);
+
+                                if (!string.IsNullOrEmpty(outputFileName))
                                 {
-                                    OutputPath = outputPath;
+                                    if (Directory.Exists(outputDirectory))
+                                    {
+                                        OutputDirectory = outputDirectory;
+                                    }
 
+                                    OutputFileName = outputFileName;
                                     i++;
                                 }
                                 else
                                 {
-                                    throw new ArgumentException($"Такого пути \"{outputPath}\" не существует!");
-                                }
+                                    throw new ArgumentException($"Некорректное название файла \"{outputFileName}\"!");
+                                }  
+                                
                             }
                             else
                             {

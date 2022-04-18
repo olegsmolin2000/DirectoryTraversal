@@ -8,6 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="DirectoryTraversal"/>
+    <Using Include="DirectoryTraversal" />
   </ItemGroup>
 </Project>

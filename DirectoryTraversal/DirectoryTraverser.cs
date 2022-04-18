@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using DirectoryTraversal.Outputting;
 
 namespace DirectoryTraversal
 {
@@ -13,20 +8,37 @@ namespace DirectoryTraversal
     internal class DirectoryTraverser
     {
         /// <summary>
+        /// Параметры выполнения программы
+        /// </summary>
+        public UtilityParameters Parameters { get; init; }
+
+        /// <summary>
         /// Корневой узел дерева, которое будет строиться из папок
         /// </summary>
         public DataElement Node { get; init; }
 
         /// <summary>
-        /// Параметры выполнения программы
+        /// Список экземпляров объектов отображителей результата
         /// </summary>
-        public UtilityParameters Parameters { get; init; }
+        public List<TraversalOutputter> Outputters { get; set; }
 
+        /// <summary>
+        /// Создание экземпляра объекта обходчика директории
+        /// </summary>
+        /// <param name="parameters">Параметры выполнения программы</param>
         public DirectoryTraverser(UtilityParameters parameters)
         {
-            Parameters = parameters;
+            if (parameters is null)
+            {
+                throw new ArgumentNullException("Пустой экземпляр объекта параметров");
+            }
 
-            Node = new DataElement(Parameters.DirectoryPath, DataType.Folder);
+            Parameters = parameters;
+            Node = new DataElement($"<{Parameters.DirectoryPath}>", DataType.Folder);
+            Outputters = new List<TraversalOutputter>();
+
+            Traverse(Parameters.DirectoryPath, Node);
+            
         }
 
         /// <summary>
@@ -58,23 +70,21 @@ namespace DirectoryTraversal
             }
         }
 
-        public void FillStringBuilder(DataElement node, StringBuilder nodesSB, string padding = "")
+        /// <summary>
+        /// Сделать вывод
+        /// </summary>
+        public void DoOutput()
         {
-            if (padding == "")
+            Outputters.Add(new TxtFileOutputter(Node, Parameters.OutputDirectory, Parameters.OutputFileName, reduceBytes: Parameters.ReduceBytes));
+
+            if (!Parameters.IsOnlyFileOutput)
             {
-                nodesSB.Append($"- <{node.Name}> ({node.BytesCount} bytes)\n");
-            }
-            else
-            {
-                nodesSB.Append($"{padding} {node.Name} ({node.BytesCount} bytes)\n");
+                Outputters.Add(new ConsoleOutputter(Node, reduceBytes: Parameters.ReduceBytes));
             }
 
-            if (node.Type != DataType.File)
+            foreach (var outputter in Outputters)
             {
-                foreach (var childNode in node.Childs)
-                {
-                    FillStringBuilder(childNode, nodesSB, padding + "--");
-                }
+                outputter.DoOutput();
             }
         }
     }

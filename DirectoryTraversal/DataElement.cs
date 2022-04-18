@@ -16,7 +16,7 @@
     }
 
     /// <summary>
-    /// Класс для хранения данных о элементе. Небольшое дерево
+    /// Класс для хранения данных о элементе (дерево с данными).
     /// </summary>
     internal class DataElement
     {
@@ -58,7 +58,10 @@
             Type = type;
             Parent = parent;
 
-            IncreaseBytes(bytesCount);
+            if (bytesCount > 0)
+            {
+                IncreaseBytes(bytesCount);
+            }
             
             if (Type == DataType.Folder)
             {
@@ -69,22 +72,14 @@
         /// <summary>
         /// Увеличение количества занимаемого места. Так же увеличивает у родительских узлов
         /// </summary>
-        /// <param name="additionalSize">Добавляемый размер (в байтах)</param>
-        /// <exception cref="ArgumentException">Добавление отрицательного количества байт</exception>        
+        /// <param name="additionalSize">Добавляемый размер (в байтах)</param>      
         private void IncreaseBytes(long additionalSize)
         {
-            if (additionalSize >= 0)
-            {
-                BytesCount += additionalSize;
+            BytesCount += additionalSize;
 
-                if (Parent is not null)
-                {
-                    Parent.IncreaseBytes(additionalSize);
-                }
-            }
-            else
+            if (Parent is not null)
             {
-                throw new ArgumentException("Добавляется отрицательное количество байт в методе IncreaseBytes");
+                Parent.IncreaseBytes(additionalSize);
             }
         }
     }
