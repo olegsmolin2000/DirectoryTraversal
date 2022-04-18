@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DirectoryTraversal
+﻿namespace DirectoryTraversal
 {
     /// <summary>
     /// Класс, содержащий параметры для выполнения программы
@@ -15,104 +9,120 @@ namespace DirectoryTraversal
         /// Признак вывода сообщений в стандартный поток вывода 
         /// (-q, --quite. Если <see langword="true"/>, то не выводить лог в консоль. Только в файл)
         /// </summary>
-        public bool IsOnlyFileOutput { get; set; }
+        public bool IsOnlyFileOutput { get; private set; }
 
         /// <summary>
         /// Путь к папке для обхода 
         /// (-p или --path. По-умолчанию текущая папка вызова программы)
         /// </summary>
-        public string DirectoryPath { get; set; }
+        public string DirectoryPath { get; private set; }
 
         /// <summary>
         /// Путь к тестовому файлу, куда записать результаты выполнения расчёта 
         /// (-o или --output. По-умолчанию файл sizes-YYYY-MM-DD.txt в текущей папке вызова программы)
         /// </summary>
-        public string OutputPath { get; set; }
+        public string OutputPath { get; private set; }
 
         /// <summary>
         /// Признак формирования размеров файлов в человекочитаемой форме
         /// (-h или --humanread. Если <see langword="true"/>, то размер показывается в читаемой для человека форме)
         /// </summary>
-        public bool HumanReadable { get; set; }
+        public bool HumanReadable { get; private set; }
 
-        public UtilityParameters(string[] args)
+        /// <summary>
+        /// Заполнение параметров значениями по умолчанию. 
+        /// Путь - текущая папка. 
+        /// Выходной файл - "текущая папка/sizes-YYYY-MM-DD.txt".
+        /// </summary>
+        public UtilityParameters()
         {
-            FillDefaultParameters();
+            IsOnlyFileOutput = false;
+            DirectoryPath = Directory.GetCurrentDirectory();
+            OutputPath = $"{DirectoryPath}\\sizes-{DateTime.Now.ToString("yyyy-MM-dd")}.txt";
+            HumanReadable = false;
+        }
 
+        /// <summary>
+        /// Считывание параметров из аргументов командной строки
+        /// </summary>
+        /// <param name="args">Аргументы командной строки</param>
+        /// <exception cref="ArgumentException">Некорректные ввод параметров в командной строке</exception>
+        public void ReadConsoleParameters(string[] args)
+        {
             for (int i = 0; i < args.Length; i++)
             {
                 switch (args[i])
                 {
                     case "-q":
                     case "--quite":
-                        IsOnlyFileOutput = true;
-                        break;
+                        {
+                            IsOnlyFileOutput = true;
 
+                            break;
+                        }
                     case "-h":
                     case "--humanread":
-                        HumanReadable = true;
-                        break;
+                        {
+                            HumanReadable = true;
 
+                            break;
+                        }
                     case "-p":
                     case "--path":
-                        if (i + 1 < args.Length)
                         {
-                            string directoryPath = args[i + 1];
-
-                            if (Directory.Exists(directoryPath))
+                            if (i + 1 < args.Length)
                             {
-                                DirectoryPath = directoryPath;
+                                string directoryPath = args[i + 1];
 
-                                i++;
+                                if (Directory.Exists(directoryPath))
+                                {
+                                    DirectoryPath = directoryPath;
+
+                                    i++;
+                                }
+                                else
+                                {
+                                    throw new ArgumentException($"Указанного пути \"{directoryPath}\" не существует!");
+                                }
                             }
                             else
                             {
-                                throw new ArgumentException($"Указанного пути \"{directoryPath}\" не существует!");
+                                throw new ArgumentException("Не указан путь к читаемой папке!");
                             }
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Не указан путь к читаемой папке!");
-                        }
 
-                        break;
-
+                            break;
+                        }
                     case "-o":
                     case "--output":
-                        if (i + 1 < args.Length)
                         {
-                            string outputPath = args[i + 1];
-
-                            if (outputPath.EndsWith(".txt") && Directory.Exists(Path.GetDirectoryName(outputPath)))
+                            if (i + 1 < args.Length)
                             {
-                                OutputPath = outputPath;
+                                string outputPath = args[i + 1];
 
-                                i++;
+                                if (outputPath.EndsWith(".txt") && Directory.Exists(Path.GetDirectoryName(outputPath)))
+                                {
+                                    OutputPath = outputPath;
+
+                                    i++;
+                                }
+                                else
+                                {
+                                    throw new ArgumentException($"Такого пути \"{outputPath}\" не существует!");
+                                }
                             }
                             else
                             {
-                                throw new ArgumentException($"Такого пути \"{outputPath}\" не существует!");
+                                throw new ArgumentException("Не указан пусть к выходному файлу!");
                             }
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Не указан пусть к выходному файлу!");
-                        }
 
-                        break;
-
+                            break;
+                        }
                     default:
-                        throw new ArgumentException($"Неизвестный параметр {args[i]}!");
+                        {
+                            throw new ArgumentException($"Неизвестный параметр {args[i]}!");
+                        }
                 }
             }
-        }
-
-        private void FillDefaultParameters()
-        {
-            IsOnlyFileOutput = false;
-            DirectoryPath = Directory.GetCurrentDirectory();
-            OutputPath = $"{DirectoryPath}\\sizes-{DateTime.Now.ToString("yyyy-MM-dd")}.txt";
-            HumanReadable = false;
         }
     }
 }

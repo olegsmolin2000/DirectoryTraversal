@@ -1,17 +1,13 @@
-﻿using DirectoryTraversal;
-
-try
+﻿try
 {
-    foreach (var arg in args)
-    {
-        //Console.WriteLine($"\'{arg}\'");
-    }
-    var q = new UtilityParameters(args);
+    var parameters = new UtilityParameters();
 
-    Console.WriteLine(q.DirectoryPath);
-    Console.WriteLine(q.OutputPath);
-    Console.WriteLine(q.IsOnlyFileOutput);
-    Console.WriteLine(q.HumanReadable);
+    parameters.ReadConsoleParameters(args);
+
+    Console.WriteLine(parameters.DirectoryPath);
+    Console.WriteLine(parameters.OutputPath);
+    Console.WriteLine(parameters.IsOnlyFileOutput);
+    Console.WriteLine(parameters.HumanReadable);
 }
 catch (Exception ex)
 {
